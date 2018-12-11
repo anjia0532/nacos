@@ -74,14 +74,14 @@ class InstanceTable extends React.Component {
 
   switchState(index, record) {
     const { instance } = this.state;
-    const { ip, port, weight, enabled } = record;
+    const { ip, port, weight, enabled, metadata } = record;
     const { clusterName, serviceName } = this.props;
     const newVal = Object.assign({}, instance);
     newVal.list[index].enabled = !enabled;
     request({
       method: 'POST',
       url: 'v1/ns/instance/update',
-      data: { serviceName, clusterName, ip, port, weight, enable: !enabled },
+      data: { serviceName, clusterName, ip, port, weight, enable: !enabled, metadata },
       dataType: 'text',
       beforeSend: () => this.openLoading(),
       success: () => this.setState({ instance: newVal }),
@@ -114,13 +114,14 @@ class InstanceTable extends React.Component {
           <Table.Column
             title={locale.metadata}
             dataIndex="metadata"
-            cell={metadata =>
-              Object.keys(metadata).map(k => (
+            cell={(metadata = {}) => {
+              if (!metadata) return null;
+              return Object.keys(metadata).map(k => (
                 <p>
                   {k}={metadata[k]}
                 </p>
-              ))
-            }
+              ));
+            }}
           />
           <Table.Column
             title={locale.operation}
